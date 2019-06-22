@@ -21,6 +21,26 @@ def hello_name(name=None):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        return render_template("do_login.html")
+        try:
+            username = request.form['uname']
+            password = request.form['psw']
+
+            if validate_login(uname=username, psw=password) == True:
+                return render_template('do_login.html')
+            else:
+                print("LoginError")
+
+        except KeyError:
+            print("KeyError")
+
+    return render_template("login_form.html")
+
+
+def validate_login(uname, psw):
+    true_user = "Lisa"
+    true_pass = "password123"
+
+    if uname == true_user and psw == true_pass:
+        return True
     else:
-        return render_template("login_form.html")
+        return False
