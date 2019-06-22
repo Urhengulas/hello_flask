@@ -15,3 +15,8 @@ run-local:
 dep:
 	if [ ! -d "env" ];then virtualenv env;fi
 	env/bin/pip install -r requirements.txt
+
+db:
+	FLASK_APP=$(FLASK_APP) \
+	FLASK_ENV=$(FLASK_ENV) \
+	env/bin/flask init-db
