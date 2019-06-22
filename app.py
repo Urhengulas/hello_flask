@@ -1,4 +1,6 @@
 from flask import Flask, request, render_template
+from werkzeug.utils import secure_filename
+
 app = Flask(__name__)
 
 
@@ -44,3 +46,10 @@ def validate_login(uname, psw):
         return True
     else:
         return False
+
+
+@app.route("/upload", methods=["GET", "POST"])
+def upload():
+    if request.method == 'POST':
+        f = request.files["'the_file"]
+        f.save(f'/var/www/uploads/{secure_filename(f.filename)}')
