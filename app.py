@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, request
 app = Flask(__name__)
 
 
@@ -20,13 +20,24 @@ def hello_name(name):
     return f'Hello, {name.title()}!'
 
 
-@app.route('/path/<path:subpath>/')
-def show_subpath(subpath):
-    return f'Subpath: {subpath}'
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return do_login()
+    else:
+        return show_login_form()
 
 
-print("\n### OUTPUT ###")
-with app.test_request_context():
-    print(url_for('index'))
-    print(url_for('hello_name', name='anna'))
-print("##############\n")
+def do_login():
+    return "<h3>logging you in<h3/>"
+
+
+def show_login_form():
+    return """
+    <form>
+        Username:<br>
+        <input type="text" name="username"><br>
+        Password:<br>
+        <input type="text" name="password">
+    </form>
+    """
