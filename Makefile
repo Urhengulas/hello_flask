@@ -1,5 +1,11 @@
 run:
-	export FLASK_APP=hello.py
+	FLASK_APP=app.py \
+	FLASK_ENV=development \
+	flask run --host=0.0.0.0
+
+run-local:
+	FLASK_APP=app.py \
+	FLASK_ENV=development \
 	flask run
 
 dep:
