@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -28,7 +28,7 @@ def login():
             password = request.form['psw']
 
             if validate_login(uname=username, psw=password) == True:
-                return render_template('do_login.html')
+                return redirect(url_for('hello_name', name="user"))
             else:
                 print("LoginError")
 
@@ -53,3 +53,5 @@ def upload():
     if request.method == 'POST':
         f = request.files["'the_file"]
         f.save(f'/var/www/uploads/{secure_filename(f.filename)}')
+
+    redirect(url_for('index'))
