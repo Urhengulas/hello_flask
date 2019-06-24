@@ -1,6 +1,7 @@
 env/
 
 .vscode/
+XDG_CACHE_HOME/
 
 *.pyc
 __pycache__/
