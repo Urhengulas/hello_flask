@@ -37,11 +37,11 @@ def register():
 
         flash(error)
 
-    return render_template(url_for('auth/register.html'))
+    return render_template('auth/register.html')
 
 
-@bp.route('/login')
-def login(methods=['GET', 'POST']):
+@bp.route('/login', methods=('GET', 'POST'))
+def login():
 
     if request.method == 'POST':
         username = request.form['username']
@@ -59,7 +59,7 @@ def login(methods=['GET', 'POST']):
             session.clear()
             session['user_id'] = user['id']
 
-            return redirect(url_for('index'))
+            return redirect(url_for('hello'))
 
         flash(error)
 
@@ -69,11 +69,13 @@ def login(methods=['GET', 'POST']):
 def query_user(db, name):
 
     return db.execute(
-        'SELECT id FROM user WHERE username = ?', (name,)).fetchone()
+        'SELECT * FROM user WHERE username = ?', (name,)
+    ).fetchone()
 
 
 @bp.before_app_request
 def load_logged_in_user():
+
     user_id = session.get('user_id')
 
     if user_id is None:
@@ -93,8 +95,10 @@ def logout():
 
 
 def login_required(view):
+
     @functools.wraps(view)
     def wrapped_view(**kwargs):
+
         if g.user is None:
             return redirect(url_for('auth.login'))
 
