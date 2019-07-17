@@ -59,7 +59,7 @@ def login():
             session.clear()
             session['user_id'] = user['id']
 
-            return redirect(url_for('hello'))
+            return redirect(url_for('blog.index'))
 
         flash(error)
 
