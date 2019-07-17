@@ -27,15 +27,15 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    # a simple page that says hello
+    @app.route('/hello/')
+    def hello():
+        return 'Hello, Flask!'
+
     # initialize sqlite db
     db.init_app(app)
 
     # register auth.bp
     app.register_blueprint(auth.bp)
-
-    # a simple page that says hello
-    @app.route('/hello/')
-    def hello():
-        return 'Hello, Flask!'
 
     return app
