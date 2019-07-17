@@ -2,6 +2,8 @@ import os
 
 from flask import Flask
 
+from . import db, auth, blog
+
 
 def create_app(test_config=None):
     """create and configure the app"""
@@ -26,11 +28,9 @@ def create_app(test_config=None):
         pass
 
     # initialize sqlite db
-    from . import db
     db.init_app(app)
 
     # register auth.bp
-    from . import auth
     app.register_blueprint(auth.bp)
 
     # a simple page that says hello
