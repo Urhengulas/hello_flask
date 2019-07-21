@@ -3,14 +3,17 @@ FLASK_ENV:=development
 
 
 run:
+	make run-production
+
+run-development:
 	FLASK_APP=$(FLASK_APP) \
 	FLASK_ENV=$(FLASK_ENV) \
 	env/bin/flask run --host=0.0.0.0
 
-run-local:
+run-production:
 	FLASK_APP=$(FLASK_APP) \
-	FLASK_ENV=$(FLASK_ENV) \
-	env/bin/flask run
+	FLASK_ENV="production" \
+	env/bin/waitress-serve --call 'flaskr:create_app'
 
 dep:
 	if [ ! -d "env" ];then virtualenv env;fi
