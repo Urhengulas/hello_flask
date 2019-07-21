@@ -20,3 +20,10 @@ db:
 	FLASK_APP=$(FLASK_APP) \
 	FLASK_ENV=$(FLASK_ENV) \
 	env/bin/flask init-db
+
+test:
+	# TESTS
+	env/bin/coverage run -m pytest -vvv
+
+	# COVERAGE
+	env/bin/coverage report

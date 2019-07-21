@@ -1,3 +1,10 @@
-Flask
+# actual libraries
+Flask>=1.1.1
+
+# testing
+pytest
+coverage
+
+# development tools
 autopep8
 pylint

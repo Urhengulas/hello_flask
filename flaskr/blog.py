@@ -33,8 +33,8 @@ def create():
         body = request.form['body']
         error = None
 
-        if not title or not body:
-            error = "Both title and body are required to be filled."
+        if not title:
+            error = 'Title is required.'
 
         if error is not None:
             flash(error)
@@ -56,13 +56,15 @@ def create():
 @login_required
 def update(id):
 
+    post = get_post(id)
+
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
         error = None
 
-        if not title or not body:
-            error = "Both title and body are required to be filled."
+        if not title:
+            error = "Title is required."
 
         if error is not None:
             flash(error)
@@ -76,8 +78,6 @@ def update(id):
             db.commit()
 
             return redirect(url_for('blog.index'))
-
-    post = get_post(id)
 
     return render_template('blog/update.html', post=post)
 
