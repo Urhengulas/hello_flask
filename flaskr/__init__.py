@@ -11,7 +11,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        MONGO_HOST='127.0.0.1',  # change to 'mongo' later
+        MONGO_HOST='mongo',  # change to 'mongo' later
     )
 
     if test_config is None:
