@@ -1,4 +1,5 @@
 import functools
+from bson.objectid import ObjectId
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -23,15 +24,15 @@ def register():
 
         if not username or not password:
             error = "Username and password are required"
-        elif query_user(db, username) is not None:
+        elif query_user(username) is not None:
             error = f"User {username} is already registered."
 
         if error is None:
-            db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
-            )
-            db.commit()
+            user = {
+                'username': username,
+                'password': generate_password_hash(password),
+            }
+            db.user.insert_one(user)
 
             return redirect(url_for('auth.login'))
 
@@ -50,14 +51,14 @@ def login():
         db = get_db()
         error = None
 
-        user = query_user(db, username)
+        user = query_user(username)
 
         if user is None or check_password_hash(user['password'], password) is False:
             error = 'Username or password is incorrect.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = str(user['_id'])
 
             return redirect(url_for('blog.index'))
 
@@ -66,24 +67,20 @@ def login():
     return render_template('auth/login.html')
 
 
-def query_user(db, name):
+def query_user(name: str) -> dict:
 
-    return db.execute(
-        'SELECT * FROM user WHERE username = ?', (name,)
-    ).fetchone()
+    return get_db().user.find_one({'username': name})
 
 
 @bp.before_app_request
 def load_logged_in_user():
 
-    user_id = session.get('user_id')
+    user_id = ObjectId(session.get('user_id'))
 
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        g.user = get_db().user.find_one({'_id': user_id})
 
 
 @bp.route('/logout')

@@ -1,48 +1,34 @@
-import sqlite3
-
-import click
 from flask import current_app, g
-from flask.cli import with_appcontext
+
+import pymongo
 
 
 def init_app(app):
 
-    app.cli.add_command(init_db_command)
-    app.teardown_appcontext(close_db)
-
-
-@click.command('init-db')
-@with_appcontext
-def init_db_command():
-    """Clear the existing data and create new tables"""
-
-    init_db()
-    click.echo('Initialized the database')
-
-
-def init_db():
-
     db = get_db()
+    db.posts.create_index(
+        [('post_id', pymongo.ASCENDING)],
+        unique=True
+    )
+    # app.teardown_appcontext(close_db)
 
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
 
-
-def get_db():
+def get_db() -> pymongo.database.Database:
 
     if 'db' not in g:
-        g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
+        client = pymongo.MongoClient(
+            host=current_app.config['MONGO_HOST'],
+            username='root',  # TODO: put username, password into ./instance/config.py
+            password='example',
         )
-        g.db.row_factory = sqlite3.Row
+        g.db = client.flaskr
 
     return g.db
 
 
-def close_db(e=None):
+# def close_db(e=None):
 
-    db = g.pop('db', None)
+#     db = g.pop('db', None)
 
-    if db is not None:
-        db.close()
+#     if db is not None:
+#         db.close()

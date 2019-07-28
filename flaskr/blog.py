@@ -1,3 +1,5 @@
+import datetime
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
@@ -13,12 +15,7 @@ bp = Blueprint('blog', __name__)
 def index():
     """Show all posts"""
 
-    db = get_db()
-    posts = db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' ORDER BY created DESC'
-    ).fetchall()
+    posts = get_db().posts.find()
 
     return render_template('blog/index.html', posts=posts)
 
@@ -39,13 +36,11 @@ def create():
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (?, ?, ?)',
-                (title, body, g.user['id'])
+            post = create_post(
+                title=title,
+                body=body,
             )
-            db.commit()
+            get_db().posts.insert_one(post)
 
             return redirect(url_for('blog.index'))
 
@@ -54,7 +49,7 @@ def create():
 
 @bp.route('/<int:id>/update', methods=['GET', 'POST'])
 @login_required
-def update(id):
+def update(id: int):
 
     post = get_post(id)
 
@@ -69,13 +64,17 @@ def update(id):
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'UPDATE post SET title = ?, body = ?'
-                ' WHERE id = ?',
-                (title, body, id)
+            post = create_post(
+                title=title,
+                body=body,
+                post_id=id,
             )
-            db.commit()
+
+            db = get_db()
+            db.posts.replace_one(
+                filter={'post_id': id},
+                replacement=post,
+            )
 
             return redirect(url_for('blog.index'))
 
@@ -84,29 +83,46 @@ def update(id):
 
 @bp.route('/<int:id>/delete', methods=['POST'])
 @login_required
-def delete(id):
-    post = get_post(id)
+def delete(id: int):
+    post = get_post(id)  # called to check existence and permissions
 
     db = get_db()
-    db.execute(
-        'DELETE FROM post WHERE id = ?', (id,)
-    )
-    db.commit()
+    db.posts.delete_one({'post_id': id})
+
     return redirect(url_for('blog.index'))
 
 
-def get_post(id, check_author=True):
-    post = get_db().execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' WHERE p.id = ?',
-        (id,)
-    ).fetchone()
+def create_post(title: str, body: str, post_id=None) -> dict:
+
+    db = get_db()
+    user_id = g.user['_id']
+    user_name = db.user.find_one({'_id': user_id})['username']
+
+    if post_id is None:
+        post_id = db.posts.count_documents({}) + 1
+
+    post = {
+        'post_id': post_id,
+        'title': title,
+        'body': body,
+        'created': datetime.datetime.now(),
+        'author': {
+            '_id': user_id,
+            'username': user_name,
+        },
+    }
+    return post
+
+
+def get_post(id: int, check_author=True) -> dict:
+
+    db = get_db()
+    post = db.posts.find_one({'post_id': id})
 
     if post is None:
         abort(404, f"Post id {id} doesn't exist.")
 
-    if check_author is True and post['author_id'] != g.user['id']:
+    if check_author is True and post['author']['_id'] != g.user['_id']:
         abort(403)
 
     return post
