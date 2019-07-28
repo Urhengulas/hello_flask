@@ -5,12 +5,11 @@ services:
     image: mongo:latest
     container_name: mongo
     restart: always
-    ports:
-      - 27017:27017
     volumes:
       - ./mongo-data/:/data/db
     networks:
       - mongodb
+      - flaskr
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -29,5 +28,17 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
 
+  flaskr:
+    build: .
+    image: flaskr
+    container_name: flaskr
+    depends_on: 
+      - mongo
+    ports:
+      - 8080:8080
+    networks: 
+      - flaskr
+
 networks:
   mongodb:
+  flaskr:
