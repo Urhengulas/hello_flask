@@ -7,8 +7,9 @@ def init_app(app):
 
     db = get_db()
     db.posts.create_index(
-        [('post_id', pymongo.ASCENDING)],
-        unique=True
+        keys=[('post_id', pymongo.ASCENDING)],
+        unique=True,
+        min=1,
     )
     # app.teardown_appcontext(close_db)
 

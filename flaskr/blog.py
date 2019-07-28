@@ -99,7 +99,7 @@ def create_post(title: str, body: str, post_id=None) -> dict:
     user_name = db.user.find_one({'_id': user_id})['username']
 
     if post_id is None:
-        post_id = db.posts.count_documents({}) + 1
+        post_id = calc_post_id()
 
     post = {
         'post_id': post_id,
@@ -126,3 +126,16 @@ def get_post(id: int, check_author=True) -> dict:
         abort(403)
 
     return post
+
+
+def calc_post_id():
+
+    post_col = get_db().posts
+    num_posts = post_col.count_documents({})
+
+    if num_posts == 0:
+        return 1
+
+    for post_id in range(1, num_posts + 2):
+        if post_col.find_one({'post_id': post_id}) is None:
+            return post_id
