@@ -11,8 +11,6 @@ run-development:
 	env/bin/flask run --host=0.0.0.0
 
 run-production:
-	FLASK_APP=$(FLASK_APP) \
-	FLASK_ENV="production" \
 	env/bin/waitress-serve --call 'flaskr:create_app'
 
 
