@@ -19,7 +19,6 @@ run-production:
 setup:
 	make dep
 	make key
-	make db
 
 dep:
 	if [ ! -d "env" ];then virtualenv env;fi
@@ -29,11 +28,6 @@ key:
 	touch env/var/flaskr-instance/config.py
 	echo "SECRET_KEY = \\" > env/var/flaskr-instance/config.py
 	echo """    $(shell python -c """import os; print(os.urandom(16).replace(b'\n', b'\t'))""")""" >> env/var/flaskr-instance/config.py
-
-db:
-	FLASK_APP=$(FLASK_APP) \
-	FLASK_ENV=$(FLASK_ENV) \
-	env/bin/flask init-db
 
 
 test:
