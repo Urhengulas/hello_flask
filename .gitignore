@@ -1,7 +1,6 @@
 env/
 
 .vscode/
-XDG_CACHE_HOME/
 
 *.pyc
 __pycache__/
@@ -12,6 +11,4 @@ instance/
 .coverage
 htmlcov/
 
-dist/
-build/
-*.egg-info/
+mongo-data/
